@@ -1,9 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
-import heapq
+from math import log
+
 
 class Graph:
+
     def __init__(self, currencies):
         self.currencies = currencies
         self.num_currencies = len(currencies)
@@ -14,47 +16,53 @@ class Graph:
         dest_index = self.currencies.index(destination)
         self.graph[source_index][dest_index] = weight
 
-    # def bellman_ford(self, source):
-    #     dist = [float('inf')] * self.num_currencies
-    #     pred = [-1] * self.num_currencies
-    #     dist[source] = 0
+    def arbitrage(self):
+        trans_graph = self.negate_logarithm_convertor()
 
-    #     for _ in range(self.num_currencies - 1):
-    #         for u in range(self.num_currencies):
-    #             for v in range(self.num_currencies):
-    #                 if dist[v] > dist[u] + self.graph[u][v]:
-    #                     dist[v] = dist[u] + self.graph[u][v]
-    #                     pred[v] = u
+        # pick any source vertex -- we can run Bellman-Ford from any vertex and get the right result
+        source = 0
+        n = self.num_currencies
+        min_dist = [float('inf')] * n
+        pre = [-1] * n
+        min_dist[source] = source
 
-    #     for u in range(self.num_currencies):
-    #         for v in range(self.num_currencies):
-    #             if dist[v] > dist[u] + self.graph[u][v]:
-    #                 return pred, u, v
+        # BELLMAN-FORD ALGORITHM - O(|V|*|E|)
+        for _ in range(n - 1):
+            for source_curr in range(n):
+                for dest_curr in range(n):
+                    if min_dist[dest_curr] > min_dist[source_curr] + trans_graph[source_curr][dest_curr]:
+                        min_dist[dest_curr] = min_dist[source_curr] + trans_graph[source_curr][dest_curr]
+                        pre[dest_curr] = source_curr
 
+        # if we can still relax edges, then we have a negative cycle
+        for source_curr in range(n):
+            for dest_curr in range(n):
+                if min_dist[dest_curr] > min_dist[source_curr] + trans_graph[source_curr][dest_curr]:
+                    # negative cycle exists, and use the predecessor chain to print the cycle
+                    print_cycle = [dest_curr, source_curr]
+                    # start from the source and go backwards until you see the source vertex again or any vertex that already exists in print_cycle array
+                    while pre[source_curr] not in print_cycle:
+                        print_cycle.append(pre[source_curr])
+                        source_curr = pre[source_curr]
+                    print_cycle.append(pre[source_curr])
+                    print()
+                    print()
+                    print("ARBITRAGE OPPORTUNITY: \n")
+                    print(" --> ".join([self.currencies[p] for p in print_cycle[::-1]]))
+                    return
 
-    def dijkstra(self, source):
-        dist = [float('inf')] * self.num_currencies
-        pred = [-1] * self.num_currencies
-        visited = [False] * self.num_currencies
-        dist[source] = 0
+        print()
+        print("No arbitrage opportunity found.")
 
-        pq = [(0, source)]
-
-        while pq:
-            cost, u = heapq.heappop(pq)
-            if visited[u]:
-                continue
-            visited[u] = True
-            for v in range(self.num_currencies):
-                if self.graph[u][v] > 0:  # Consider only positive weights - does not account for negative weights (need to use bellman ford algorithm for negative weights)
-                    new_cost = dist[u] + self.graph[u][v]
-                    if new_cost < dist[v]:
-                        dist[v] = new_cost
-                        pred[v] = u
-                        heapq.heappush(pq, (dist[v], v))
-
-        return pred
-
+    def negate_logarithm_convertor(self):
+        ''' log of each rate in graph and negate it'''
+        result = []
+        for row in self.graph:
+            negated_row = []
+            for edge in row:
+                negated_row.append(-log(edge))
+            result.append(negated_row)
+        return result
 
     def display_networkx_graph(self):
         G = nx.DiGraph()
@@ -71,30 +79,17 @@ class Graph:
         plt.show()
 
 
-    def print_path(self, pred, start, end):
-        path = []
-        at = end
-        while at != start:
-            path.append(at)
-            at = pred[at]
-        path.append(start)
-        path.reverse()
-        print("Arbitrage Opportunity:")
-        for node in path:
-            print(self.currencies[node])
-
-
 if __name__ == "__main__":
-    data = pd.read_csv("exchange_rates.csv")
+    data = pd.read_csv("exchange_rates_negative.csv")
     currencies = list(set(data.iloc[:, 0]))
+    print("Unique destination currencies:", currencies) 
 
     exchange_graph = Graph(currencies)
 
     for index, row in data.iterrows():
+        print("Adding edge:", row[0], "->", row[1], "with weight", row[2])
         exchange_graph.add_edge(row[0], row[1], row[2])
 
+    exchange_graph.arbitrage()
     exchange_graph.display_networkx_graph()
-
-    pred = exchange_graph.dijkstra(0)
-    exchange_graph.print_path(pred, 0, 1) 
-
+    
