@@ -26,5 +26,5 @@ Bellman-Ford can handle graphs with negative edge weights, while Dijkstra's algo
 ## Sample Graph Display Output
 <img width="639" alt="Screenshot 2024-04-12 at 4 30 07 AM" src="https://github.com/sidsomani2005/Arbitrage_Graph/assets/163345992/9490a0f4-3f44-4e2f-a651-404b53ba8499">
 
-## Sample Coresponding Console Output
+## Sample Corresponding Console Output
 <img width="773" alt="Screenshot 2024-04-12 at 4 30 57 AM" src="https://github.com/sidsomani2005/Arbitrage_Graph/assets/163345992/215ad539-d734-4d23-a9f2-46690e018687">
