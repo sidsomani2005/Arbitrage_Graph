@@ -3,7 +3,7 @@ Creates a weighted directed graph of currencies with the respective exchange rat
 
 ## Efficiency
 The function creates the graph using Networkx runs in O(|V| + |E|) time complexity.
-The main program and its ability to calculate the arbitrage between the currencies is predicted on the implementation of the Bellman-Ford algorithm, which runs in O(|V| * |E|) time complexity.
+The main program and its ability to calculate the arbitrage between the currencies is predicted on the implementation of the Bellman-Ford algorithm, which runs in `O(|V| * |E|)` time complexity.
 
 ## Reasoning behind Bellman-Ford vs. Dijkstra's Algorithm
 Bellman-Ford and Dijkstra's algorithms are both used to find the shortest path in a weighted graph. However, when it comes to calculating arbitrage in a weighted digraph (a directed graph where each edge has a real-valued weight as inputted based on the parsing of the provided csv file of currencies and exchange rates), Bellman-Ford is generally preferred over Dijkstra's algorithm.
