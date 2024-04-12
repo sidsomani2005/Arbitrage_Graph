@@ -2,7 +2,7 @@
 Creates a weighted directed graph of currencies with the respective exchange rates as their weights and uses Bellman-Ford algorithm to find the currencies available for arbitrage by finding the currencies with a negative weight cycle.
 
 ## Efficiency
-The function creates the graph using Networkx runs in O(|V| + |E|) time complexity.
+The function creates the graph using Networkx runs in `O(|V| + |E|)` time complexity.
 The main program and its ability to calculate the arbitrage between the currencies is predicted on the implementation of the Bellman-Ford algorithm, which runs in `O(|V| * |E|)` time complexity.
 
 ## Reasoning behind Bellman-Ford vs. Dijkstra's Algorithm
